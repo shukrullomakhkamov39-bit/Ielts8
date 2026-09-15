@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message
 from services.writing_ai import evaluate_essay
-from speaking_ai import evaluate_speech
+from services.speaking_ai import evaluate_speech
 
 router = Router()
 
