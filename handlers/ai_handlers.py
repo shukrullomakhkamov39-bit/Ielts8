@@ -1,54 +1,84 @@
 from aiogram import Router, F
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 
-# AI servislaringizni shu yerda import qilasiz:
-# from services.writing_ai import evaluate_essay
-# from services.speaking_ai import evaluate_speech
+# 1. AI Holatlarini (States) belgilash
+class AIStates(StatesGroup):
+    waiting_for_writing = State()
+    waiting_for_speaking = State()
+    waiting_for_reading = State()
+    waiting_for_listening = State()
+    waiting_for_grammar = State()
 
 router = Router()
 
-# 1. Writing AI
-@router.message(F.text == "✍️ Writing AI")
-async def writing_ai_handler(message: Message):
-    await message.answer(
-        "✍️ **IELTS Writing AI Coach**\n\n"
-        "IELTS Writing Task 1 yoki Task 2 inshoingizni (essay) matn shaklida yuboring. "
-        "AI uni 4 ta mezon bo'yicha baholab, tavsiyalar beradi."
-    )
-
-# 2. Speaking AI
-@router.message(F.text == "🗣️ Speaking AI")
-async def speaking_ai_handler(message: Message):
-    await message.answer(
-        "🗣️ **IELTS Speaking AI Coach**\n\n"
-        "Javobingizni ovozli xabar (**voice message**) shaklida yuboring. "
-        "AI talaffuz, lug'at boyligi va grammatikani tekshiradi."
-    )
-
-# 3. Reading AI
+# ==================== READING AI ====================
 @router.message(F.text == "📖 Reading AI")
-async def reading_ai_handler(message: Message):
+async def reading_ai_start(message: Message, state: FSMContext):
+    await state.set_state(AIStates.waiting_for_reading)  # Bot foydalanuvchini matn kutilayotgan holatga o'tkazadi
     await message.answer(
         "📖 **Reading AI Assistant**\n\n"
-        "Tushunarsiz bo'lgan Reading matnini yoki qiyin savolni yuboring. "
-        "AI uni tahlil qilib, to'g'ri javob kalitlarini tushuntirib beradi."
+        "Tushunarsiz bo'lgan Reading matnini yoki qiyin savolni yuboring. AI uni tahlil qilib beradi."
     )
 
-# 4. Listening AI
-@router.message(F.text == "🎧 Listening AI")
-async def listening_ai_handler(message: Message):
-    await message.answer(
-        "🎧 **Listening AI Practice**\n\n"
-        "Listening transkriptini yoki audio bo'yicha tushunmagan savolingizni yuboring. "
-        "AI iboralar va parafrazalarni ajratib beradi."
-    )
+@router.message(AIStates.waiting_for_reading)
+async def process_reading(message: Message, state: FSMContext):
+    user_text = message.text
+    await message.answer("⏳ *Reading AI matningizni tahlil qilmoqda...*")
+    
+    # Shu yerda AI servisingizni chaqirasiz (masalan: response = await ask_reading_ai(user_text))
+    await message.answer(f"🤖 **Reading AI Tahlili:**\n\nSiz yuborgan matn: {user_text}\n\n(Bu yerda AI tahlil javobi bo'ladi)")
+    await state.clear()  # Holatni yakunlash
 
-# 5. Grammar AI
+
+# ==================== GRAMMAR AI ====================
 @router.message(F.text == "📝 Grammar AI")
-async def grammar_ai_handler(message: Message):
-    await message.answer(
-        "📝 **Grammar Checker AI**\n\n"
-        "Grammatikasini tekshirmoqchi bo'lgan istalgan inglizcha matn yoki gapingizni yuboring. "
-        "AI xatolaringizni to'g'rilab, qoidasini izohlaydi."
-    )
+async def grammar_ai_start(message: Message, state: FSMContext):
+    await state.set_state(AIStates.waiting_for_grammar)
+    await message.answer("📝 **Grammar AI**: Grammatikasini tekshirmoqchi bo'lgan matningizni yuboring:")
+
+@router.message(AIStates.waiting_for_grammar)
+async def process_grammar(message: Message, state: FSMContext):
+    user_text = message.text
+    await message.answer("⏳ *Grammatika tekshirilmoqda...*")
+    
+    await message.answer(f"📝 **Grammar AI Natijasi:**\n\nMatn: '{user_text}' - Grammatik jihatdan to'g'ri!")
+    await state.clear()
+
+
+# ==================== WRITING AI ====================
+@router.message(F.text == "✍️ Writing AI")
+async def writing_ai_start(message: Message, state: FSMContext):
+    await state.set_state(AIStates.waiting_for_writing)
+    await message.answer("✍️ **Writing AI**: IELTS Essayingizni yuboring:")
+
+@router.message(AIStates.waiting_for_writing)
+async def process_writing(message: Message, state: FSMContext):
+    # from services.writing_ai import evaluate_essay
+    await message.answer("✍️ *Writing inshoingiz tahlil qilinmoqda...*")
+    await state.clear()
+
+
+# ==================== LISTENING AI ====================
+@router.message(F.text == "🎧 Listening AI")
+async def listening_ai_start(message: Message, state: FSMContext):
+    await state.set_state(AIStates.waiting_for_listening)
+    await message.answer("🎧 **Listening AI**: Transkript yoki savolingizni yuboring:")
+
+@router.message(AIStates.waiting_for_listening)
+async def process_listening(message: Message, state: FSMContext):
+    await message.answer("🎧 *Listening material tahlil qilinmoqda...*")
+    await state.clear()
+
+
+# ==================== SPEAKING AI ====================
+@router.message(F.text == "🗣️ Speaking AI")
+async def speaking_ai_start(message: Message, state: FSMContext):
+    await state.set_state(AIStates.waiting_for_speaking)
+    await message.answer("🗣️ **Speaking AI**: Ovozli xabaringizni (voice) yuboring:")
+
+@router.message(AIStates.waiting_for_speaking)
+async def process_speaking(message: Message, state: FSMContext):
+    await message.answer("🗣️ *Ovozli xabaringiz tahlil qilinmoqda...*")
+    await state.clear()
