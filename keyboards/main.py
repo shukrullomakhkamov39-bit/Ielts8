@@ -4,7 +4,10 @@ def main_menu():
     return ReplyKeyboardMarkup(
         keyboard=[
             [KeyboardButton(text="🎯 Daily Plan"), KeyboardButton(text="📊 Progress")],
-            [KeyboardButton(text="📚 Vocabulary Recall"), KeyboardButton(text="❌ Error Factory")]
+            [KeyboardButton(text="📚 Vocabulary Recall"), KeyboardButton(text="❌ Error Factory")],
+            [KeyboardButton(text="✍️ Writing AI"), KeyboardButton(text="🗣️ Speaking AI")],
+            [KeyboardButton(text="📖 Reading AI"), KeyboardButton(text="🎧 Listening AI")],
+            [KeyboardButton(text="📝 Grammar AI")]
         ],
         resize_keyboard=True
     )
