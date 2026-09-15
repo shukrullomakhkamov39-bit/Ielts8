@@ -4,13 +4,13 @@ from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 from config.settings import BOT_TOKEN
 from database.db import init_db
-from handlers import onboarding, dashboard
+from handlers import onboarding, dashboard, writing
 
 logging.basicConfig(level=logging.INFO)
 
 async def main():
     if not BOT_TOKEN:
-        raise ValueError("BOT_TOKEN ko'rsatilmadi! .env faylini tekshiring.")
+        raise ValueError("BOT_TOKEN ko'rsatilmadi!")
 
     await init_db()
     
@@ -19,8 +19,9 @@ async def main():
 
     dp.include_router(onboarding.router)
     dp.include_router(dashboard.router)
+    dp.include_router(writing.router)
 
-    print("🚀 IELTS Coach Bot faol holatda ishga tushdi!")
+    print("🚀 PRO IELTS Coach Bot AI moduli bilan faol!")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
